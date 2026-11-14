@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المتجر الإلكتروني - M.Y-STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+        body { font-family: 'Cairo', sans-serif; }
+        .hidden-section { display: none !important; }
+    </style>
+</head>
+<body class="h-full bg-slate-50 dark:bg-[#020617] text-slate-800 dark:text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative">
+
+    <!-- طبقة خلفية اللوجو التلقائية -->
+    <div id="dynamic-bg-layer" class="fixed inset-0 pointer-events-none z-0 bg-no-repeat bg-center transition-opacity duration-500 opacity-30 dark:opacity-25" style="background-size: min(550px, 80vw);"></div>
+
+    <!-- الهيدر الرئيسي -->
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 shadow-sm dark:shadow-lg transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img id="header-logo" src="" class="h-12 w-12 rounded-full object-cover border-2 border-indigo-500/40 shadow-md hidden-section" alt="Logo">
+                <div>
+                    <h1 id="header-store-name" class="text-xl font-bold text-slate-900 dark:text-white tracking-wide">M.Y-STORE</h1>
+                    <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">التسوق الإلكتروني السريع</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- زر تبديل الثيم -->
+                <button type="button" id="theme-toggle-btn" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 p-3 rounded-2xl border border-slate-300 dark:border-slate-700 transition flex items-center justify-center">
+                    <i id="theme-toggle-dark-icon" class="fas fa-moon text-lg text-indigo-500 hidden"></i>
+                    <i id="theme-toggle-light-icon" class="fas fa-sun text-lg text-amber-400 hidden"></i>
+                </button>
+
+                <!-- زر السلة -->
+                <button type="button" id="btn-open-cart" class="relative bg-slate-100 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-white p-3 rounded-2xl border border-slate-300 dark:border-slate-700 transition">
+                    <i class="fas fa-shopping-cart text-lg text-indigo-600 dark:text-indigo-400"></i>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- الواجهة الرئيسية -->
+    <main class="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <!-- بنر ترحيبي -->
+        <div class="bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/90 rounded-3xl p-6 sm:p-10 relative overflow-hidden shadow-xl dark:shadow-2xl backdrop-blur-md transition-colors duration-300">
+            <div class="relative z-10 max-w-xl space-y-3">
+                <span class="bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40 px-3 py-1 rounded-full text-xs font-bold">M.Y-STORE Data Recovery</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">أحدث المنتجات العصرية بأفضل الأسعار</h2>
+                <p class="text-slate-600 dark:text-slate-300 text-sm">تصفح المنتجات وأضف ما يناسبك للسلة، واطلب بسهولة عبر طرق الدفع المختلفة والمباشرة.</p>
+            </div>
+        </div>
+
+        <!-- تصفية التصنيفات والبحث -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0" id="categories-bar">
+                <button type="button" data-cat="all" class="cat-btn bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition shadow-md">الكل</button>
+            </div>
+            <div class="w-full sm:w-72 relative">
+                <input type="text" id="search-input" placeholder="بحث عن منتج..." class="w-full bg-white/90 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl pr-10 pl-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition shadow-inner">
+                <i class="fas fa-search absolute right-3.5 top-3 text-slate-400 text-sm"></i>
+            </div>
+        </div>
+
+        <!-- مؤشر التحميل -->
+        <div id="loading-spinner" class="text-center py-12">
+            <i class="fas fa-circle-notch fa-spin text-3xl text-indigo-500"></i>
+            <p class="text-xs text-slate-500 mt-2">جاري تحميل المنتجات من المتجر...</p>
+        </div>
+
+        <!-- شبكة عرض المنتجات -->
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+        <!-- رسالة عند عدم وجود منتجات -->
+        <div id="no-products-msg" class="text-center py-16 hidden-section space-y-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl border border-slate-200 dark:border-slate-800">
+            <div class="bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-slate-400 text-2xl">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">لا توجد منتجات متوفرة حالياً</h3>
+            <p class="text-slate-500 dark:text-slate-400 text-xs">قم بإضافة منتجات جديدة من لوحة التحكم</p>
+        </div>
+    </main>
+
+    <!-- نافذة عرض تفاصيل المنتج المنبثقة -->
+    <div id="productDetailsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden-section z-50">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/60">
+                <span id="modal-prod-category" class="bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 px-3 py-1 rounded-lg text-xs font-bold">التصنيف</span>
+                <button type="button" id="btn-close-prod-details" class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 transition">
+                    <i class="fas fa-times text-base"></i>
+                </button>
+            </div>
+
+            <div class="p-5 sm:p-6 overflow-y-auto flex-1">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div class="rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 aspect-square flex items-center justify-center">
+                        <img id="modal-prod-image" src="" alt="Product Image" class="w-full h-full object-contain">
+                    </div>
+
+                    <div class="flex flex-col justify-between h-full space-y-4">
+                        <div class="space-y-3">
+                            <h3 id="modal-prod-name" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white break-words">اسم المنتج</h3>
+                            <div class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400" id="modal-prod-price">0 ج.م</div>
+                            
+                            <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
+                                <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">الوصف والمواصفات:</h4>
+                                <p id="modal-prod-desc" class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-line break-words max-h-48 overflow-y-auto pr-1">لا يوجد وصف متاح لهذا المنتج.</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <button type="button" id="modal-btn-add-cart" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-5 rounded-2xl transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 text-sm">
+                                <i class="fas fa-cart-plus text-base"></i> إضافة إلى سلة المشتريات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة سلة المشتريات وإتمام الطلب -->
+    <div id="cartModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden-section z-50">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-shopping-bag text-indigo-600 dark:text-indigo-400"></i>
+                    <h3 class="font-bold text-slate-900 dark:text-white">سلة المشتريات</h3>
+                </div>
+                <button type="button" class="btn-close-cart text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 rounded-xl transition"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <div id="cart-items-container" class="space-y-3"></div>
+
+                <div id="empty-cart-msg" class="text-center py-8 text-slate-500 text-sm hidden-section">
+                    السلة فارغة حالياً
+                </div>
+
+                <form id="checkout-form" class="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                    <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200">بيانات التوصيل والطلب</h4>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">الاسم بالكامل</label>
+                        <input type="text" id="cust-name" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500" placeholder="أدخل اسمك">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">رقم الهاتف</label>
+                        <input type="tel" id="cust-phone" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500" placeholder="مثال: 01000000000">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">عنوان التوصيل بالتفصيل</label>
+                        <input type="text" id="cust-address" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500" placeholder="المدينة، الشارع، رقم المبنى">
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">طريقة الدفع</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <label class="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500 transition">
+                                <input type="radio" name="payment-method" value="كاش عند الاستلام" checked class="text-indigo-600 focus:ring-0">
+                                <span class="text-xs font-bold text-slate-800 dark:text-white"><i class="fas fa-money-bill-wave text-emerald-500 ml-1"></i> كاش</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500 transition">
+                                <input type="radio" name="payment-method" value="فودافون كاش" class="text-indigo-600 focus:ring-0">
+                                <span class="text-xs font-bold text-slate-800 dark:text-white"><i class="fas fa-mobile-alt text-rose-500 ml-1"></i> فودافون كاش</span>
+                            </label>
+                            <label class="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500 transition">
+                                <input type="radio" name="payment-method" value="InstaPay" class="text-indigo-600 focus:ring-0">
+                                <span class="text-xs font-bold text-slate-800 dark:text-white"><i class="fas fa-university text-purple-500 ml-1"></i> InstaPay</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="payment-receipt-box" class="hidden-section bg-indigo-500/10 border border-indigo-500/30 p-4 rounded-xl space-y-3 text-xs">
+                        <div id="payment-instructions"></div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">إرفاق صورة إشعار / وصل التحويل *</label>
+                            <input type="file" id="transfer-receipt-file" accept="image/*" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-800 dark:text-white text-xs">
+                            <div id="receipt-preview-container" class="mt-2 text-center hidden-section">
+                                <img id="receipt-preview" class="max-h-24 rounded-lg border border-slate-700 mx-auto">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <div class="flex items-center justify-between text-base font-bold text-slate-900 dark:text-white mb-4">
+                            <span>الإجمالي الكلي:</span>
+                            <span id="cart-total-price" class="text-emerald-600 dark:text-emerald-400">0 ج.م</span>
+                        </div>
+                        <button type="submit" id="btn-submit-order" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-600/30">تأكيد وإرسال الطلب</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- فوتر المتجر -->
+    <footer class="relative z-10 bg-white/90 dark:bg-slate-950/95 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors duration-300">
+        <p>جميع الحقوق محفوظة &copy; <span id="footer-store-name">M.Y-STORE</span></p>
+    </footer>
+
+    <!-- استدعاء مكتبات Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUC2nyvUVU2ir0-7UbzOCINOEqpbBXgaA",
+            authDomain: "my-store-datarecovery-elite.firebaseapp.com",
+            projectId: "my-store-datarecovery-elite",
+            storageBucket: "my-store-datarecovery-elite.firebasestorage.app",
+            messagingSenderId: "953943766563",
+            appId: "1:953943766563:web:844e6cce740b378bf96396",
+            measurementId: "G-N10W8QHTJR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // === إدارة الوضع الفاتح والغامق ===
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+        function applyTheme(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+                localStorage.setItem('color-theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                darkIcon.classList.remove('hidden');
+                lightIcon.classList.add('hidden');
+                localStorage.setItem('color-theme', 'light');
+            }
+        }
+
+        const savedTheme = localStorage.getItem('color-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(savedTheme === 'dark' || (!savedTheme && prefersDark));
+
+        themeToggleBtn.addEventListener('click', () => {
+            applyTheme(!document.documentElement.classList.contains('dark'));
+        });
+
+        // === إزالة الخلفية البيضاء من الشعار ===
+        function removeWhiteBackground(base64Img, callback) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    if (data[i] > 235 && data[i + 1] > 235 && data[i + 2] > 235) data[i + 3] = 0;
+                }
+                ctx.putImageData(imgData, 0, 0);
+                callback(canvas.toDataURL('image/png'));
+            };
+            img.onerror = () => callback(base64Img);
+            img.src = base64Img;
+        }
+
+        // === متغيرات المتجر ===
+        let allProducts = [];
+        let storeSettings = {
+            name: 'M.Y-STORE',
+            logo: '',
+            phone: '010XXXXXXXX',
+            instapay: 'mystore@instapay',
+            whatsapp: ''
+        };
+        let cart = [];
+        let activeCategory = 'all';
+        let receiptBase64 = '';
+        let currentModalProduct = null;
+
+        // === الاستماع اللحظي لإعدادات المتجر من Firebase ===
+        onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
+            if (docSnap.exists()) {
+                storeSettings = { ...storeSettings, ...docSnap.data() };
+            }
+
+            document.getElementById('header-store-name').innerText = storeSettings.name || 'M.Y-STORE';
+            document.getElementById('footer-store-name').innerText = storeSettings.name || 'M.Y-STORE';
+
+            const logoEl = document.getElementById('header-logo');
+            const bgLayer = document.getElementById('dynamic-bg-layer');
+
+            if (storeSettings.logo) {
+                removeWhiteBackground(storeSettings.logo, (transparentLogo) => {
+                    logoEl.src = transparentLogo;
+                    logoEl.classList.remove('hidden-section');
+                    bgLayer.style.backgroundImage = `url('${transparentLogo}')`;
+                });
+            } else {
+                logoEl.classList.add('hidden-section');
+                bgLayer.style.backgroundImage = 'none';
+            }
+        });
+
+        // === الاستماع اللحظي للمنتجات من Firebase ===
+        onSnapshot(collection(db, "products"), (snapshot) => {
+            document.getElementById('loading-spinner').classList.add('hidden-section');
+            allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderCategories();
+            renderProducts();
+        }, (error) => {
+            console.error("Firebase Read Error:", error);
+            document.getElementById('loading-spinner').innerHTML = `<p class="text-rose-500 text-xs">تأكد من تفعيل Firestore Database في وضع Test Mode.</p>`;
+        });
+
+        function renderCategories() {
+            const categories = ['all', ...new Set(allProducts.map(p => p.category).filter(Boolean))];
+            const container = document.getElementById('categories-bar');
+            container.innerHTML = '';
+
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `cat-btn px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition ${activeCategory === cat ? 'bg-indigo-600 text-white shadow-md' : 'bg-white dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`;
+                btn.innerText = cat === 'all' ? 'الكل' : cat;
+                btn.addEventListener('click', () => {
+                    activeCategory = cat;
+                    renderCategories();
+                    renderProducts();
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        function openProductDetails(product) {
+            currentModalProduct = product;
+            document.getElementById('modal-prod-category').innerText = product.category || 'عام';
+            document.getElementById('modal-prod-image').src = product.image || 'https://via.placeholder.com/300';
+            document.getElementById('modal-prod-name').innerText = product.name;
+            document.getElementById('modal-prod-price').innerText = product.price + ' ج.م';
+            document.getElementById('modal-prod-desc').innerText = product.description || 'لا توجد تفاصيل إضافية مسجلة لهذا المنتج.';
+            document.getElementById('productDetailsModal').classList.remove('hidden-section');
+        }
+
+        document.getElementById('btn-close-prod-details').addEventListener('click', () => {
+            document.getElementById('productDetailsModal').classList.add('hidden-section');
+        });
+
+        document.getElementById('productDetailsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'productDetailsModal') {
+                document.getElementById('productDetailsModal').classList.add('hidden-section');
+            }
+        });
+
+        document.getElementById('modal-btn-add-cart').addEventListener('click', () => {
+            if (currentModalProduct) {
+                addToCart(currentModalProduct);
+                document.getElementById('productDetailsModal').classList.add('hidden-section');
+            }
+        });
+
+        function renderProducts() {
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            const grid = document.getElementById('products-grid');
+            const noProductsMsg = document.getElementById('no-products-msg');
+
+            grid.innerHTML = '';
+
+            const filtered = allProducts.filter(p => {
+                const matchesCat = activeCategory === 'all' || p.category === activeCategory;
+                const matchesSearch = p.name.toLowerCase().includes(searchQuery);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                noProductsMsg.classList.remove('hidden-section');
+            } else {
+                noProductsMsg.classList.add('hidden-section');
+                filtered.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white/90 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col justify-between hover:border-indigo-500/60 transition duration-300 shadow-lg dark:shadow-2xl group cursor-pointer';
+                    card.innerHTML = `
+                        <div>
+                            <div class="overflow-hidden rounded-2xl mb-4 bg-slate-100 dark:bg-slate-950 aspect-square relative">
+                                <img src="${p.image || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <span class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+                                    <i class="fas fa-expand-alt"></i> عرض التفاصيل
+                                </span>
+                            </div>
+                            <span class="bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 px-2.5 py-0.5 rounded-md text-[11px] font-semibold">${p.category || 'عام'}</span>
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base mt-2 break-words group-hover:text-indigo-500 transition">${p.name}</h3>
+                            ${p.description ? `<p class="text-slate-600 dark:text-slate-300 text-xs mt-1 line-clamp-2 break-words leading-relaxed">${p.description}</p>` : ''}
+                        </div>
+                        <div class="mt-4 flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800/80">
+                            <span class="text-emerald-600 dark:text-emerald-400 font-extrabold text-lg">${p.price} ج.م</span>
+                            <button type="button" data-id="${p.id}" class="btn-add-cart bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-xl transition flex items-center gap-1.5 text-xs font-bold shadow-md z-10">
+                                <i class="fas fa-cart-plus"></i> إضافة للسلة
+                            </button>
+                        </div>
+                    `;
+
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.closest('.btn-add-cart')) openProductDetails(p);
+                    });
+
+                    grid.appendChild(card);
+                });
+            }
+
+            grid.querySelectorAll('.btn-add-cart').forEach(b => {
+                b.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = b.getAttribute('data-id');
+                    const product = allProducts.find(p => p.id === id);
+                    if (product) addToCart(product);
+                });
+            });
+        }
+
+        function addToCart(product) {
+            const existing = cart.find(item => item.id === product.id);
+            if (existing) existing.qty += 1;
+            else cart.push({ ...product, qty: 1 });
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const container = document.getElementById('cart-items-container');
+            const emptyMsg = document.getElementById('empty-cart-msg');
+            const totalPriceEl = document.getElementById('cart-total-price');
+
+            badge.innerText = cart.reduce((sum, item) => sum + item.qty, 0);
+            container.innerHTML = '';
+            let totalSum = 0;
+
+            if (cart.length === 0) {
+                emptyMsg.classList.remove('hidden-section');
+            } else {
+                emptyMsg.classList.add('hidden-section');
+                cart.forEach(item => {
+                    totalSum += item.price * item.qty;
+                    const row = document.createElement('div');
+                    row.className = 'bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3';
+                    row.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800">
+                            <div>
+                                <h5 class="font-bold text-xs text-slate-900 dark:text-white">${item.name}</h5>
+                                <span class="text-xs text-indigo-600 dark:text-indigo-400 font-bold">${item.price} ج.م</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" data-id="${item.id}" class="btn-dec-qty bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs">-</button>
+                            <span class="text-xs font-bold text-slate-900 dark:text-white px-1">${item.qty}</span>
+                            <button type="button" data-id="${item.id}" class="btn-inc-qty bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs">+</button>
+                            <button type="button" data-id="${item.id}" class="btn-remove-item text-rose-500 hover:text-rose-400 mr-2 text-xs"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+
+            totalPriceEl.innerText = totalSum + ' ج.م';
+
+            container.querySelectorAll('.btn-inc-qty').forEach(b => {
+                b.addEventListener('click', () => {
+                    const item = cart.find(i => i.id === b.getAttribute('data-id'));
+                    if (item) { item.qty += 1; updateCartUI(); }
+                });
+            });
+
+            container.querySelectorAll('.btn-dec-qty').forEach(b => {
+                b.addEventListener('click', () => {
+                    const id = b.getAttribute('data-id');
+                    const item = cart.find(i => i.id === id);
+                    if (item) {
+                        item.qty -= 1;
+                        if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+                        updateCartUI();
+                    }
+                });
+            });
+
+            container.querySelectorAll('.btn-remove-item').forEach(b => {
+                b.addEventListener('click', () => {
+                    cart = cart.filter(i => i.id !== b.getAttribute('data-id'));
+                    updateCartUI();
+                });
+            });
+        }
+
+        document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const box = document.getElementById('payment-receipt-box');
+                const instructions = document.getElementById('payment-instructions');
+
+                if (e.target.value === 'فودافون كاش') {
+                    instructions.innerHTML = `
+                        <p class="font-bold text-rose-500">📲 طريقة الدفع عبر فودافون كاش:</p>
+                        <p class="text-slate-700 dark:text-slate-300 mt-1">يرجى تحويل المبلغ الإجمالي إلى الرقم: <strong class="text-slate-900 dark:text-white font-mono text-sm">${storeSettings.phone}</strong></p>
+                    `;
+                    box.classList.remove('hidden-section');
+                } else if (e.target.value === 'InstaPay') {
+                    instructions.innerHTML = `
+                        <p class="font-bold text-purple-500">⚡ طريقة الدفع عبر InstaPay:</p>
+                        <p class="text-slate-700 dark:text-slate-300 mt-1">عنوان الدفع (IPA): <strong class="text-slate-900 dark:text-white font-mono text-sm">${storeSettings.instapay}</strong></p>
+                        <p class="text-slate-700 dark:text-slate-300 mt-0.5">أو تحويل لرقـم الهاتف: <strong class="text-slate-900 dark:text-white font-mono text-sm">${storeSettings.phone}</strong></p>
+                    `;
+                    box.classList.remove('hidden-section');
+                } else {
+                    box.classList.add('hidden-section');
+                    receiptBase64 = '';
+                }
+            });
+        });
+
+        document.getElementById('transfer-receipt-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const maxW = 800;
+                        const scale = Math.min(1, maxW / img.width);
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        receiptBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('receipt-preview').src = receiptBase64;
+                        document.getElementById('receipt-preview-container').classList.remove('hidden-section');
+                    };
+                    img.src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (cart.length === 0) return alert('السلة فارغة!');
+
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const address = document.getElementById('cust-address').value;
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            if (paymentMethod !== 'كاش عند الاستلام' && !receiptBase64) {
+                return alert('يرجى إرفاق صورة وصل أو إشعار التحويل!');
+            }
+
+            const submitBtn = document.getElementById('btn-submit-order');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'جاري إرسال الطلب...';
+
+            const newOrder = {
+                customer: { name, phone, address },
+                items: cart.map(({ id, name, price, qty }) => ({ id, name, price, qty })),
+                paymentMethod: paymentMethod,
+                receiptImage: receiptBase64,
+                total: total,
+                createdAt: Date.now(),
+                date: new Date().toLocaleDateString('ar-EG') + ' ' + new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                status: 'جديد'
+            };
+
+            try {
+                await addDoc(collection(db, "orders"), newOrder);
+
+                if (storeSettings.whatsapp) {
+                    let itemsSummary = cart.map(i => `- ${i.name} (${i.qty}x)`).join('\n');
+                    let waMsg = `مرحباً، أريد تأكيد طلب جديد 🛍️\n\n*اسم العميل:* ${name}\n*رقم التليفون:* ${phone}\n*العنوان:* ${address}\n*طريقة الدفع:* ${paymentMethod}\n\n*المنتجات:*\n${itemsSummary}\n\n*الإجمالي الكلي:* ${total} ج.م`;
+                    window.open(`https://wa.me/${storeSettings.whatsapp}?text=${encodeURIComponent(waMsg)}`, '_blank');
+                }
+
+                alert('تم إرسال طلبك بنجاح! سنتواصل معك قريباً.');
+                cart = [];
+                receiptBase64 = '';
+                updateCartUI();
+                document.getElementById('cartModal').classList.add('hidden-section');
+                document.getElementById('checkout-form').reset();
+                document.getElementById('payment-receipt-box').classList.add('hidden-section');
+            } catch (err) {
+                console.error("Order Submit Error:", err);
+                alert('حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'تأكيد وإرسال الطلب';
+            }
+        });
+
+        document.getElementById('btn-open-cart').addEventListener('click', () => {
+            document.getElementById('cartModal').classList.remove('hidden-section');
+        });
+        document.querySelectorAll('.btn-close-cart').forEach(b => {
+            b.addEventListener('click', () => {
+                document.getElementById('cartModal').classList.add('hidden-section');
+            });
+        });
+
+        document.getElementById('search-input').addEventListener('input', renderProducts);
+    </script>
+</body>
+</html>
