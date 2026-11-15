@@ -29,7 +29,6 @@
     <style>
         body { font-family: 'Cairo', sans-serif; }
         .hidden-section { display: none !important; }
-        /* قص اللوجو الدائري وإخفاء أي زوائد أو مربعات خارج الدائرة */
         .logo-circle-crop {
             clip-path: circle(48% at 50% 50%);
             -webkit-clip-path: circle(48% at 50% 50%);
@@ -40,7 +39,7 @@
 
     <!-- طبقة خلفية اللوجو المقصوصة دائرياً -->
     <div id="dynamic-bg-layer" class="fixed inset-0 pointer-events-none z-0 flex items-center justify-center transition-opacity duration-500 opacity-30 dark:opacity-25">
-        <img id="bg-logo-img" src="./edited-image.jpg" alt="" class="w-[min(520px,78vw)] h-[min(520px,78vw)] object-cover logo-circle-crop select-none">
+        <img id="bg-logo-img" src="./MY STORE 20.jpg" alt="" class="w-[min(520px,78vw)] h-[min(520px,78vw)] object-cover logo-circle-crop select-none">
     </div>
 
     <!-- الهيدر الرئيسي -->
@@ -48,7 +47,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="h-12 w-12 rounded-full border-2 border-indigo-500/40 shadow-md overflow-hidden flex items-center justify-center">
-                    <img id="header-logo" src="./edited-image.jpg" class="w-full h-full object-cover logo-circle-crop" alt="Logo">
+                    <img id="header-logo" src="./MY STORE 20.jpg" class="w-full h-full object-cover logo-circle-crop" alt="Logo">
                 </div>
                 <div>
                     <h1 id="header-store-name" class="text-xl font-bold text-slate-900 dark:text-white tracking-wide">M.Y Store Data Recovrey Elite</h1>
@@ -97,7 +96,7 @@
         <!-- مؤشر التحميل -->
         <div id="loading-spinner" class="text-center py-12">
             <i class="fas fa-circle-notch fa-spin text-3xl text-indigo-600"></i>
-            <p class="text-xs text-slate-500 mt-2">جاري تحميل المنتجات...</p>
+            <p class="text-xs text-slate-500 mt-2">جاري تحميل المنتجات من قاعدة البيانات...</p>
         </div>
 
         <!-- شبكة عرض المنتجات -->
@@ -230,9 +229,10 @@
         <p>جميع الحقوق محفوظة &copy; <span id="footer-store-name">M.Y Store Data Recovrey Elite</span></p>
     </footer>
 
-    <!-- ربط Firebase Firestore والمنطق البرمجي -->
+    <!-- ربط Firebase Firestore والمنطق البرمجي المباشر -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
         import { getFirestore, collection, onSnapshot, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -246,6 +246,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
         // === إدارة الوضع الفاتح والغامق ===
@@ -275,12 +276,11 @@
             applyTheme(!document.documentElement.classList.contains('dark'));
         });
 
-        // === متغيرات المتجر ===
-        const DEFAULT_LOGO = './edited-image.jpg';
-        let allProducts = JSON.parse(localStorage.getItem('fb_cache_products') || '[]');
-        let storeSettings = JSON.parse(localStorage.getItem('fb_cache_settings') || 'null') || {
-            storeName: 'M.Y Store Data Recovrey Elite',
-            storeLogo: DEFAULT_LOGO,
+        // === متغيرات المتجر العامة ===
+        let allProducts = [];
+        let storeSettings = {
+            storeName: 'M.Y-STORE Data Recovery ELITE',
+            storeLogo: './MY STORE 20.jpg',
             storePhone: '010XXXXXXXX',
             instapayIpa: 'mystore@instapay',
             whatsapp: ''
@@ -290,45 +290,27 @@
         let receiptBase64 = '';
         let currentModalProduct = null;
 
-        function applySettingsToUI() {
-            document.getElementById('header-store-name').innerText = storeSettings.storeName;
-            document.getElementById('footer-store-name').innerText = storeSettings.storeName;
-
-            const logoEl = document.getElementById('header-logo');
-            const bgImgEl = document.getElementById('bg-logo-img');
-            const targetLogo = storeSettings.storeLogo || DEFAULT_LOGO;
-
-            logoEl.src = targetLogo;
-            bgImgEl.src = targetLogo;
-        }
-
-        applySettingsToUI();
-        if (allProducts.length > 0) {
-            document.getElementById('loading-spinner').classList.add('hidden-section');
-            renderCategories();
-            renderProducts();
-        }
-
-        // === 1. جلب إعدادات المتجر من Firestore ===
+        // === 1. جلب إعدادات المتجر من Firestore (document: settings/store) ===
         async function loadStoreSettings() {
             try {
                 const settingsSnap = await getDoc(doc(db, "settings", "store"));
                 if (settingsSnap.exists()) {
                     const data = settingsSnap.data();
-                    storeSettings = {
-                        ...storeSettings,
-                        ...data,
-                        storeLogo: (data.storeLogo && data.storeLogo !== './logo.jpg') ? data.storeLogo : DEFAULT_LOGO
-                    };
-                    localStorage.setItem('fb_cache_settings', JSON.stringify(storeSettings));
-                    applySettingsToUI();
+                    storeSettings = { ...storeSettings, ...data };
                 }
             } catch (error) {
-                console.warn("استخدام الإعدادات المخزنة:", error);
+                console.warn("استخدام الإعدادات الافتراضية:", error);
             }
+
+            document.getElementById('header-store-name').innerText = storeSettings.storeName;
+            document.getElementById('footer-store-name').innerText = storeSettings.storeName;
+
+            const logoSrc = storeSettings.storeLogo || './MY STORE 20.jpg';
+            document.getElementById('header-logo').src = logoSrc;
+            document.getElementById('bg-logo-img').src = logoSrc;
         }
 
-        // === 2. الاستماع اللحظي للمنتجات من Firestore ===
+        // === 2. الاستماع اللحظي للمنتجات من Firestore (collection: products) ===
         function listenToProducts() {
             const loadingSpinner = document.getElementById('loading-spinner');
             onSnapshot(collection(db, "products"), (snapshot) => {
@@ -337,17 +319,12 @@
                     id: docSnap.id,
                     ...docSnap.data()
                 }));
-                try {
-                    localStorage.setItem('fb_cache_products', JSON.stringify(allProducts));
-                } catch (e) {}
                 renderCategories();
                 renderProducts();
             }, (error) => {
                 loadingSpinner.classList.add('hidden-section');
                 console.error("خطأ في جلب المنتجات من Firebase:", error);
-                if (allProducts.length === 0) {
-                    document.getElementById('no-products-msg').classList.remove('hidden-section');
-                }
+                document.getElementById('no-products-msg').classList.remove('hidden-section');
             });
         }
 
