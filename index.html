@@ -34,13 +34,13 @@
 <body class="h-full bg-slate-50 dark:bg-[#020617] text-slate-800 dark:text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative">
 
     <!-- طبقة خلفية اللوجو التلقائية -->
-    <div id="dynamic-bg-layer" class="fixed inset-0 pointer-events-none z-0 bg-no-repeat bg-center transition-opacity duration-500 opacity-30 dark:opacity-25" style="background-size: min(550px, 80vw); background-image: url('./logo.jpg');"></div>
+    <div id="dynamic-bg-layer" class="fixed inset-0 pointer-events-none z-0 bg-no-repeat bg-center transition-opacity duration-500 opacity-30 dark:opacity-25 rounded-full" style="background-size: min(520px, 78vw); background-image: url('./edited-image.jpg');"></div>
 
     <!-- الهيدر الرئيسي -->
     <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 shadow-sm dark:shadow-lg transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <img id="header-logo" src="./logo.jpg" class="h-12 w-12 rounded-full object-contain border-2 border-indigo-500/40 shadow-md" alt="Logo">
+                <img id="header-logo" src="./edited-image.jpg" class="h-12 w-12 rounded-full object-cover border-2 border-indigo-500/40 shadow-md" alt="Logo">
                 <div>
                     <h1 id="header-store-name" class="text-xl font-bold text-slate-900 dark:text-white tracking-wide">M.Y Store Data Recovrey Elite</h1>
                     <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">التسوق الإلكتروني السريع</p>
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <!-- مؤشر التحميل (يظهر فقط أول مرة إذا لم يكن هناك كاش) -->
+        <!-- مؤشر التحميل -->
         <div id="loading-spinner" class="text-center py-12">
             <i class="fas fa-circle-notch fa-spin text-3xl text-indigo-600"></i>
             <p class="text-xs text-slate-500 mt-2">جاري تحميل المنتجات...</p>
@@ -266,10 +266,10 @@
             applyTheme(!document.documentElement.classList.contains('dark'));
         });
 
-        // === إزالة الخلفية البيضاء من الشعار وحفظها في الكاش لسرعة الفتح (0ms) ===
-        function removeWhiteBackground(imgSrc, callback) {
-            const cachedSrc = localStorage.getItem('fb_cached_logo_src');
-            const cachedPng = localStorage.getItem('fb_cached_logo_png');
+        // === قص الدائرة وتفريغ الزوايا (مربعات الشفافية) لمرة واحدة وحفظها في الكاش ===
+        function getCircularTransparentLogo(imgSrc, callback) {
+            const cachedSrc = localStorage.getItem('fb_cached_logo_v2_src');
+            const cachedPng = localStorage.getItem('fb_cached_logo_v2_png');
             if (cachedSrc === imgSrc && cachedPng) {
                 return callback(cachedPng);
             }
@@ -278,26 +278,26 @@
             img.crossOrigin = "Anonymous";
             img.onload = function() {
                 try {
+                    const size = Math.min(img.width, img.height);
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
+                    canvas.width = size;
+                    canvas.height = size;
 
-                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imgData.data;
+                    // قص دائري نظيف لإخفاء مربعات الشفافية في الزوايا
+                    ctx.beginPath();
+                    ctx.arc(size / 2, size / 2, (size / 2) - 4, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.clip();
 
-                    for (let i = 0; i < data.length; i += 4) {
-                        if (data[i] > 235 && data[i + 1] > 235 && data[i + 2] > 235) {
-                            data[i + 3] = 0;
-                        }
-                    }
+                    const offsetX = (img.width - size) / 2;
+                    const offsetY = (img.height - size) / 2;
+                    ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
 
-                    ctx.putImageData(imgData, 0, 0);
                     const result = canvas.toDataURL('image/png');
                     try {
-                        localStorage.setItem('fb_cached_logo_src', imgSrc);
-                        localStorage.setItem('fb_cached_logo_png', result);
+                        localStorage.setItem('fb_cached_logo_v2_src', imgSrc);
+                        localStorage.setItem('fb_cached_logo_v2_png', result);
                     } catch (err) {}
                     callback(result);
                 } catch (e) {
@@ -308,11 +308,12 @@
             img.src = imgSrc;
         }
 
-        // === متغيرات المتجر (مع تسريع العرض الفوري من الكاش المؤقت لـ Firebase) ===
+        // === متغيرات المتجر (مع العرض الفوري من الكاش المؤقت لـ Firebase) ===
+        const DEFAULT_LOGO = './edited-image.jpg';
         let allProducts = JSON.parse(localStorage.getItem('fb_cache_products') || '[]');
         let storeSettings = JSON.parse(localStorage.getItem('fb_cache_settings') || 'null') || {
             storeName: 'M.Y Store Data Recovrey Elite',
-            storeLogo: './logo.jpg',
+            storeLogo: DEFAULT_LOGO,
             storePhone: '010XXXXXXXX',
             instapayIpa: 'mystore@instapay',
             whatsapp: ''
@@ -328,15 +329,15 @@
 
             const logoEl = document.getElementById('header-logo');
             const bgLayer = document.getElementById('dynamic-bg-layer');
+            const targetLogo = storeSettings.storeLogo || DEFAULT_LOGO;
 
-            removeWhiteBackground(storeSettings.storeLogo || './logo.jpg', (transparentLogo) => {
-                logoEl.src = transparentLogo;
+            getCircularTransparentLogo(targetLogo, (cleanCircleLogo) => {
+                logoEl.src = cleanCircleLogo;
                 logoEl.classList.remove('hidden-section');
-                bgLayer.style.backgroundImage = `url('${transparentLogo}')`;
+                bgLayer.style.backgroundImage = `url('${cleanCircleLogo}')`;
             });
         }
 
-        // عرض البيانات المخزنة مؤقتاً فوراً بدون انتظار الشبكة
         applySettingsToUI();
         if (allProducts.length > 0) {
             document.getElementById('loading-spinner').classList.add('hidden-section');
@@ -349,7 +350,12 @@
             try {
                 const settingsSnap = await getDoc(doc(db, "settings", "store"));
                 if (settingsSnap.exists()) {
-                    storeSettings = { ...storeSettings, ...settingsSnap.data() };
+                    const data = settingsSnap.data();
+                    storeSettings = {
+                        ...storeSettings,
+                        ...data,
+                        storeLogo: (data.storeLogo && data.storeLogo !== './logo.jpg') ? data.storeLogo : DEFAULT_LOGO
+                    };
                     localStorage.setItem('fb_cache_settings', JSON.stringify(storeSettings));
                     applySettingsToUI();
                 }
