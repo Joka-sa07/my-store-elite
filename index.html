@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المتجر الإلكتروني - M.Y Store Data Recovrey Elite</title>
     
-    <!-- تسريع الاتصال بسيرفرات Google و Firebase -->
+    <!-- تسريع الاتصال بالسيرفرات -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -29,18 +29,27 @@
     <style>
         body { font-family: 'Cairo', sans-serif; }
         .hidden-section { display: none !important; }
+        /* قص اللوجو الدائري وإخفاء أي زوائد أو مربعات خارج الدائرة */
+        .logo-circle-crop {
+            clip-path: circle(48% at 50% 50%);
+            -webkit-clip-path: circle(48% at 50% 50%);
+        }
     </style>
 </head>
 <body class="h-full bg-slate-50 dark:bg-[#020617] text-slate-800 dark:text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative">
 
-    <!-- طبقة خلفية اللوجو التلقائية -->
-    <div id="dynamic-bg-layer" class="fixed inset-0 pointer-events-none z-0 bg-no-repeat bg-center transition-opacity duration-500 opacity-30 dark:opacity-25 rounded-full" style="background-size: min(520px, 78vw); background-image: url('./edited-image.jpg');"></div>
+    <!-- طبقة خلفية اللوجو المقصوصة دائرياً -->
+    <div id="dynamic-bg-layer" class="fixed inset-0 pointer-events-none z-0 flex items-center justify-center transition-opacity duration-500 opacity-30 dark:opacity-25">
+        <img id="bg-logo-img" src="./edited-image.jpg" alt="" class="w-[min(520px,78vw)] h-[min(520px,78vw)] object-cover logo-circle-crop select-none">
+    </div>
 
     <!-- الهيدر الرئيسي -->
     <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 shadow-sm dark:shadow-lg transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <img id="header-logo" src="./edited-image.jpg" class="h-12 w-12 rounded-full object-cover border-2 border-indigo-500/40 shadow-md" alt="Logo">
+                <div class="h-12 w-12 rounded-full border-2 border-indigo-500/40 shadow-md overflow-hidden flex items-center justify-center">
+                    <img id="header-logo" src="./edited-image.jpg" class="w-full h-full object-cover logo-circle-crop" alt="Logo">
+                </div>
                 <div>
                     <h1 id="header-store-name" class="text-xl font-bold text-slate-900 dark:text-white tracking-wide">M.Y Store Data Recovrey Elite</h1>
                     <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">التسوق الإلكتروني السريع</p>
@@ -221,7 +230,7 @@
         <p>جميع الحقوق محفوظة &copy; <span id="footer-store-name">M.Y Store Data Recovrey Elite</span></p>
     </footer>
 
-    <!-- ربط Firebase Firestore والمنطق البرمجي فائق السرعة -->
+    <!-- ربط Firebase Firestore والمنطق البرمجي -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getFirestore, collection, onSnapshot, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
@@ -266,49 +275,7 @@
             applyTheme(!document.documentElement.classList.contains('dark'));
         });
 
-        // === قص الدائرة وتفريغ الزوايا (مربعات الشفافية) لمرة واحدة وحفظها في الكاش ===
-        function getCircularTransparentLogo(imgSrc, callback) {
-            const cachedSrc = localStorage.getItem('fb_cached_logo_v2_src');
-            const cachedPng = localStorage.getItem('fb_cached_logo_v2_png');
-            if (cachedSrc === imgSrc && cachedPng) {
-                return callback(cachedPng);
-            }
-
-            const img = new Image();
-            img.crossOrigin = "Anonymous";
-            img.onload = function() {
-                try {
-                    const size = Math.min(img.width, img.height);
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = size;
-                    canvas.height = size;
-
-                    // قص دائري نظيف لإخفاء مربعات الشفافية في الزوايا
-                    ctx.beginPath();
-                    ctx.arc(size / 2, size / 2, (size / 2) - 4, 0, Math.PI * 2);
-                    ctx.closePath();
-                    ctx.clip();
-
-                    const offsetX = (img.width - size) / 2;
-                    const offsetY = (img.height - size) / 2;
-                    ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
-
-                    const result = canvas.toDataURL('image/png');
-                    try {
-                        localStorage.setItem('fb_cached_logo_v2_src', imgSrc);
-                        localStorage.setItem('fb_cached_logo_v2_png', result);
-                    } catch (err) {}
-                    callback(result);
-                } catch (e) {
-                    callback(imgSrc);
-                }
-            };
-            img.onerror = () => callback(imgSrc);
-            img.src = imgSrc;
-        }
-
-        // === متغيرات المتجر (مع العرض الفوري من الكاش المؤقت لـ Firebase) ===
+        // === متغيرات المتجر ===
         const DEFAULT_LOGO = './edited-image.jpg';
         let allProducts = JSON.parse(localStorage.getItem('fb_cache_products') || '[]');
         let storeSettings = JSON.parse(localStorage.getItem('fb_cache_settings') || 'null') || {
@@ -328,14 +295,11 @@
             document.getElementById('footer-store-name').innerText = storeSettings.storeName;
 
             const logoEl = document.getElementById('header-logo');
-            const bgLayer = document.getElementById('dynamic-bg-layer');
+            const bgImgEl = document.getElementById('bg-logo-img');
             const targetLogo = storeSettings.storeLogo || DEFAULT_LOGO;
 
-            getCircularTransparentLogo(targetLogo, (cleanCircleLogo) => {
-                logoEl.src = cleanCircleLogo;
-                logoEl.classList.remove('hidden-section');
-                bgLayer.style.backgroundImage = `url('${cleanCircleLogo}')`;
-            });
+            logoEl.src = targetLogo;
+            bgImgEl.src = targetLogo;
         }
 
         applySettingsToUI();
@@ -345,7 +309,7 @@
             renderProducts();
         }
 
-        // === 1. جلب إعدادات المتجر من Firestore وتحديث الكاش ===
+        // === 1. جلب إعدادات المتجر من Firestore ===
         async function loadStoreSettings() {
             try {
                 const settingsSnap = await getDoc(doc(db, "settings", "store"));
@@ -364,7 +328,7 @@
             }
         }
 
-        // === 2. الاستماع اللحظي للمنتجات من Firestore وتحديث الكاش ===
+        // === 2. الاستماع اللحظي للمنتجات من Firestore ===
         function listenToProducts() {
             const loadingSpinner = document.getElementById('loading-spinner');
             onSnapshot(collection(db, "products"), (snapshot) => {
