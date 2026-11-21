@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - إدارة المتجر (Firebase)</title>
+    <title>لوحة التحكم - إدارة المتجر</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -46,7 +46,7 @@
                     <i class="fas fa-user-shield"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-white tracking-wide">دخول لوحة التحكم</h2>
-                <p class="text-slate-400 text-sm mt-1">متصل بقاعدة البيانات السحابية</p>
+                <p class="text-slate-400 text-sm mt-1">إدارة المتجر والمنتجات والطلبات</p>
             </div>
             <form id="login-form" class="space-y-4">
                 <div>
@@ -73,7 +73,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold text-white leading-tight">إدارة المتجر</h1>
-                        <span class="text-xs text-emerald-400 font-medium flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> متصل بالسحابة</span>
+                        <span class="text-xs text-emerald-400 font-medium flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> متصل الآن</span>
                     </div>
                 </div>
 
@@ -84,11 +84,12 @@
                 </div>
 
                 <nav class="space-y-1.5" id="sidebar-nav">
-                    <button type="button" data-tab="dashboard-tab" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition bg-slate-800 text-white"><i class="fas fa-chart-line w-5 text-indigo-400"></i> الإحصائيات</button>
-                    <button type="button" data-tab="products-tab" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"><i class="fas fa-box w-5 text-blue-400"></i> إدارة المنتجات</button>
-                    <button type="button" data-tab="orders-tab" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"><i class="fas fa-shopping-bag w-5 text-emerald-400"></i> إدارة الطلبات</button>
-                    <button type="button" data-tab="users-tab" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition role-admin-only"><i class="fas fa-users-cog w-5 text-purple-400"></i> المستخدمين والصلاحيات</button>
-                    <button type="button" data-tab="settings-tab" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition role-admin-only"><i class="fas fa-cog w-5 text-amber-400"></i> الإعدادات والدفع</button>
+                    <button type="button" data-tab="dashboard-tab" data-perm="view_dashboard" class="nav-btn perm-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"><i class="fas fa-chart-line w-5 text-indigo-400"></i> الإحصائيات</button>
+                    <button type="button" data-tab="products-tab" data-perm="view_products" class="nav-btn perm-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"><i class="fas fa-box w-5 text-blue-400"></i> إدارة المنتجات</button>
+                    <button type="button" data-tab="orders-tab" data-perm="view_orders" class="nav-btn perm-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"><i class="fas fa-shopping-bag w-5 text-emerald-400"></i> إدارة الطلبات</button>
+                    <button type="button" data-tab="users-tab" data-perm="manage_users" class="nav-btn perm-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"><i class="fas fa-users-cog w-5 text-purple-400"></i> المستخدمين والصلاحيات</button>
+                    <button type="button" data-tab="logs-tab" data-perm="view_logs" class="nav-btn perm-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"><i class="fas fa-history w-5 text-cyan-400"></i> سجل النشاطات</button>
+                    <button type="button" data-tab="settings-tab" data-perm="manage_settings" class="nav-btn perm-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition"><i class="fas fa-cog w-5 text-amber-400"></i> الإعدادات والدفع</button>
                 </nav>
             </div>
 
@@ -99,8 +100,15 @@
 
         <!-- المحتوى الرئيسي -->
         <main class="flex-1 p-6 overflow-y-auto space-y-6">
+            <!-- رسالة في حال لم يمتلك المستخدم أي صلاحية -->
+            <div id="no-permissions-msg" class="hidden-section text-center py-20 bg-slate-900/80 border border-slate-800 rounded-3xl space-y-3">
+                <i class="fas fa-lock text-4xl text-rose-400"></i>
+                <h3 class="text-xl font-bold text-white">لا توجد صلاحيات مفعلة لحسابك</h3>
+                <p class="text-sm text-slate-400">يرجى مراجعة مدير النظام لتفعيل الأقسام المسموحة لك.</p>
+            </div>
+
             <!-- 1. الإحصائيات -->
-            <div id="dashboard-tab" class="tab-content space-y-6">
+            <div id="dashboard-tab" data-perm="view_dashboard" class="tab-content perm-item space-y-6 hidden-section">
                 <h2 class="text-2xl font-bold text-white">نظرة عامة</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800 p-5 rounded-2xl shadow-lg">
@@ -123,17 +131,17 @@
             </div>
 
             <!-- 2. المنتجات -->
-            <div id="products-tab" class="tab-content space-y-6 hidden-section">
+            <div id="products-tab" data-perm="view_products" class="tab-content perm-item space-y-6 hidden-section">
                 <div class="flex items-center justify-between">
                     <h2 class="text-2xl font-bold text-white">إدارة المنتجات</h2>
-                    <button type="button" id="btn-open-add-product" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-indigo-600/30 role-write-only"><i class="fas fa-plus"></i> إضافة منتج جديد</button>
+                    <button type="button" id="btn-open-add-product" data-perm="manage_products" class="perm-item bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-indigo-600/30"><i class="fas fa-plus"></i> إضافة منتج جديد</button>
                 </div>
                 <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div class="overflow-x-auto">
                         <table class="w-full text-right text-sm text-slate-300">
                             <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 text-xs uppercase font-bold">
                                 <tr>
-                                    <th class="p-4">الصورة</th>
+                                    <th class="p-4">الصور</th>
                                     <th class="p-4">اسم المنتج</th>
                                     <th class="p-4">الوصف</th>
                                     <th class="p-4">السعر</th>
@@ -148,7 +156,7 @@
             </div>
 
             <!-- 3. الطلبات -->
-            <div id="orders-tab" class="tab-content space-y-6 hidden-section">
+            <div id="orders-tab" data-perm="view_orders" class="tab-content perm-item space-y-6 hidden-section">
                 <div class="flex items-center justify-between">
                     <h2 class="text-2xl font-bold text-white">إدارة الطلبات</h2>
                     <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800"><i class="fas fa-bolt text-amber-400 ml-1"></i> تحديث تلقائي لحظي</span>
@@ -176,7 +184,7 @@
             </div>
 
             <!-- 4. المستخدمين -->
-            <div id="users-tab" class="tab-content space-y-6 hidden-section role-admin-only">
+            <div id="users-tab" data-perm="manage_users" class="tab-content perm-item space-y-6 hidden-section">
                 <div class="flex items-center justify-between">
                     <h2 class="text-2xl font-bold text-white">إدارة المستخدمين والصلاحيات</h2>
                     <button type="button" id="btn-open-add-user" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition"><i class="fas fa-user-plus"></i> إضافة مستخدم</button>
@@ -187,7 +195,8 @@
                             <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 text-xs uppercase font-bold">
                                 <tr>
                                     <th class="p-4">اسم المستخدم</th>
-                                    <th class="p-4">الصلاحية</th>
+                                    <th class="p-4">الدور</th>
+                                    <th class="p-4">الصلاحيات المفعلة</th>
                                     <th class="p-4">الإجراءات</th>
                                 </tr>
                             </thead>
@@ -197,8 +206,47 @@
                 </div>
             </div>
 
-            <!-- 5. الإعدادات -->
-            <div id="settings-tab" class="tab-content space-y-6 hidden-section role-admin-only">
+            <!-- 5. سجل النشاطات التفصيلي (Audit Log) -->
+            <div id="logs-tab" data-perm="view_logs" class="tab-content perm-item space-y-6 hidden-section">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">سجل النشاطات والرقابة التفصيلي</h2>
+                        <p class="text-xs text-slate-400 mt-1">يتتبع تلقائياً كل عملية إضافة أو تعديل أو حذف يقوم بها أي مستخدم</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <input type="text" id="log-search-input" placeholder="بحث باسم الموظف أو التفاصيل..." class="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                        <select id="log-category-filter" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            <option value="all">كل الأقسام</option>
+                            <option value="المنتجات">المنتجات</option>
+                            <option value="الطلبات">الطلبات</option>
+                            <option value="المستخدمين">المستخدمين</option>
+                            <option value="الإعدادات">الإعدادات</option>
+                            <option value="الدخول">تسجيل الدخول</option>
+                        </select>
+                        ${`<button type="button" id="btn-clear-logs" class="bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition"><i class="fas fa-broom ml-1"></i> مسح السجل</button>`}
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto max-h-[70vh] overflow-y-auto">
+                        <table class="w-full text-right text-sm text-slate-300">
+                            <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 text-xs uppercase font-bold sticky top-0 z-10">
+                                <tr>
+                                    <th class="p-4 whitespace-nowrap">الموظف / المستخدم</th>
+                                    <th class="p-4 whitespace-nowrap">القسم</th>
+                                    <th class="p-4 whitespace-nowrap">نوع الحركة</th>
+                                    <th class="p-4">التفاصيل الدقيقة</th>
+                                    <th class="p-4 whitespace-nowrap">التاريخ والوقت</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body" class="divide-y divide-slate-800/60"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. الإعدادات -->
+            <div id="settings-tab" data-perm="manage_settings" class="tab-content perm-item space-y-6 hidden-section">
                 <h2 class="text-2xl font-bold text-white">إعدادات المتجر وطرق الدفع</h2>
                 <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl p-6 max-w-xl shadow-xl">
                     <form id="settings-form" class="space-y-4">
@@ -234,7 +282,7 @@
 
     <!-- نافذة المنتج المنبثقة -->
     <div id="productModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden-section z-50">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
             <h3 id="productModalTitle" class="text-xl font-bold text-white">إضافة منتج جديد</h3>
             <form id="product-form" class="space-y-4">
                 <input type="hidden" id="product-id">
@@ -246,24 +294,28 @@
                     <label class="block text-sm font-semibold text-slate-300 mb-1">وصف المنتج</label>
                     <textarea id="product-description" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" placeholder="اكتب تفاصيل ومواصفات المنتج هنا..."></textarea>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-1">السعر (ج.م)</label>
-                    <input type="number" step="0.01" id="product-price" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-1">التصنيف</label>
-                    <input type="text" id="product-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-1">اختر صورة من الجهاز (يفضل أقل من 500KB)</label>
-                    <input type="file" id="product-image-file" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white text-sm">
-                    <div id="image-preview-container" class="mt-2 text-center hidden-section">
-                        <img id="image-preview" class="max-h-24 mx-auto rounded-xl border border-slate-700">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-1">السعر (ج.م)</label>
+                        <input type="number" step="0.01" id="product-price" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white">
                     </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-1">التصنيف</label>
+                        <input type="text" id="product-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white">
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-sm font-semibold text-slate-300">صور المنتج (يمكنك تحديد عدة صور معاً - حتى 6 صور)</label>
+                        <button type="button" id="btn-clear-images" class="text-xs text-rose-400 hover:text-rose-300 hidden-section">مسح الكل</button>
+                    </div>
+                    <input type="file" id="product-image-file" accept="image/*" multiple class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white text-sm">
+                    <p class="text-[11px] text-slate-400 mt-1">الصورة الأولى ستكون الصورة الرئيسية للمنتج. يتم ضغط الصور تلقائياً لسرعة التحميل.</p>
+                    <div id="images-preview-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 mt-3 hidden-section"></div>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" class="btn-close-modal bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-sm font-semibold">إلغاء</button>
-                    <button type="submit" id="save-product-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-bold">حفظ المنتج</button>
+                    <button type="submit" id="save-product-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-sm font-bold">حفظ المنتج</button>
                 </div>
             </form>
         </div>
@@ -304,27 +356,78 @@
         </div>
     </div>
 
-    <!-- نافذة المستخدم المنبثقة -->
+    <!-- نافذة المستخدم المنبثقة (إضافة وتعديل بصلاحيات تفصيلية) -->
     <div id="userModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden-section z-50">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
-            <h3 class="text-xl font-bold text-white">إضافة مستخدم جديد</h3>
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+            <h3 id="userModalTitle" class="text-xl font-bold text-white">إضافة مستخدم جديد</h3>
             <form id="user-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-1">اسم المستخدم</label>
-                    <input type="text" id="user-username" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white">
+                <input type="hidden" id="user-doc-id">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-1">اسم المستخدم</label>
+                        <input type="text" id="user-username" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-1">نوع الحساب (قالب سريع)</label>
+                        <select id="user-role" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white">
+                            <option value="Admin">Admin (مدير كامل)</option>
+                            <option value="Editor">Editor (إدارة المنتجات والطلبات)</option>
+                            <option value="OrdersOnly">مسؤول طلبات فقط</option>
+                            <option value="ProductsOnly">مسؤول منتجات فقط</option>
+                            <option value="Viewer">Viewer (مشاهدة فقط)</option>
+                        </select>
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-1">كلمة السر</label>
-                    <input type="password" id="user-password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white">
+                    <label id="user-password-label" class="block text-sm font-semibold text-slate-300 mb-1">كلمة السر</label>
+                    <input type="password" id="user-password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white" placeholder="أدخل كلمة السر">
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-1">الصلاحية</label>
-                    <select id="user-role" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white">
-                        <option value="Admin">Admin (كل الصلاحيات)</option>
-                        <option value="Editor">Editor (إدارة المنتجات والطلبات فقط)</option>
-                        <option value="Viewer">Viewer (عرض فقط)</option>
-                    </select>
+
+                <!-- تحديد الصلاحيات المسموحة لهذا المستخدم -->
+                <div id="permissions-checkboxes-box" class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 space-y-2.5">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span class="text-xs font-bold text-indigo-400"><i class="fas fa-key ml-1"></i> الصلاحيات والأقسام التي ستظهر لهذا المستخدم:</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                        <label class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/70 border border-slate-800/80 cursor-pointer hover:border-indigo-500/50">
+                            <input type="checkbox" class="user-perm-cb accent-indigo-600 w-4 h-4" value="view_dashboard">
+                            <span class="text-slate-200 font-semibold">عرض الإحصائيات</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/70 border border-slate-800/80 cursor-pointer hover:border-indigo-500/50">
+                            <input type="checkbox" class="user-perm-cb accent-indigo-600 w-4 h-4" value="view_products">
+                            <span class="text-slate-200 font-semibold">عرض المنتجات</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/70 border border-slate-800/80 cursor-pointer hover:border-indigo-500/50">
+                            <input type="checkbox" class="user-perm-cb accent-indigo-600 w-4 h-4" value="manage_products">
+                            <span class="text-slate-200 font-semibold">إضافة / تعديل / حذف المنتجات</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/70 border border-slate-800/80 cursor-pointer hover:border-indigo-500/50">
+                            <input type="checkbox" class="user-perm-cb accent-indigo-600 w-4 h-4" value="view_orders">
+                            <span class="text-slate-200 font-semibold">عرض الطلبات والفواتير</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/70 border border-slate-800/80 cursor-pointer hover:border-indigo-500/50">
+                            <input type="checkbox" class="user-perm-cb accent-indigo-600 w-4 h-4" value="update_orders">
+                            <span class="text-slate-200 font-semibold">تغيير حالة الطلبات</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/70 border border-slate-800/80 cursor-pointer hover:border-indigo-500/50">
+                            <input type="checkbox" class="user-perm-cb accent-indigo-600 w-4 h-4" value="delete_orders">
+                            <span class="text-slate-200 font-semibold">حذف الطلبات</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/70 border border-slate-800/80 cursor-pointer hover:border-indigo-500/50">
+                            <input type="checkbox" class="user-perm-cb accent-indigo-600 w-4 h-4" value="manage_settings">
+                            <span class="text-slate-200 font-semibold">إعدادات المتجر والدفع</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/70 border border-slate-800/80 cursor-pointer hover:border-indigo-500/50">
+                            <input type="checkbox" class="user-perm-cb accent-indigo-600 w-4 h-4" value="view_logs">
+                            <span class="text-slate-200 font-semibold">عرض سجل النشاطات</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/70 border border-slate-800/80 cursor-pointer hover:border-indigo-500/50">
+                            <input type="checkbox" class="user-perm-cb accent-indigo-600 w-4 h-4" value="manage_users">
+                            <span class="text-slate-200 font-semibold">إدارة المستخدمين والصلاحيات</span>
+                        </label>
+                    </div>
                 </div>
+
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" class="btn-close-modal bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-sm font-semibold">إلغاء</button>
                     <button type="submit" id="save-user-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold">حفظ المستخدم</button>
@@ -379,12 +482,10 @@
     <!-- ربط Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { 
             getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, getDocs, onSnapshot 
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // إعدادات مشروع Firebase الخاص بك
         const firebaseConfig = {
             apiKey: "AIzaSyDQLXHQSjdhcU-wHYjdu_miYHOQ4Vr_TU8",
             authDomain: "my-store-datarecovery-el-ccc30.firebaseapp.com",
@@ -396,17 +497,51 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
-        // متغيرات الحالة المحلية المتزامنة مع السحابة
+        // تعريف كافة الصلاحيات وقوالب الأدوار الافتراضية
+        const ALL_PERMISSIONS = [
+            'view_dashboard',
+            'view_products',
+            'manage_products',
+            'view_orders',
+            'update_orders',
+            'delete_orders',
+            'manage_settings',
+            'view_logs',
+            'manage_users'
+        ];
+
+        const ROLE_PRESETS = {
+            Admin: [...ALL_PERMISSIONS],
+            Editor: ['view_dashboard', 'view_products', 'manage_products', 'view_orders', 'update_orders'],
+            OrdersOnly: ['view_orders', 'update_orders'],
+            ProductsOnly: ['view_products', 'manage_products'],
+            Viewer: ['view_dashboard', 'view_products', 'view_orders']
+        };
+
+        const PERM_LABELS = {
+            view_dashboard: 'الإحصائيات',
+            view_products: 'عرض المنتجات',
+            manage_products: 'تعديل المنتجات',
+            view_orders: 'عرض الطلبات',
+            update_orders: 'حالة الطلبات',
+            delete_orders: 'حذف الطلبات',
+            manage_settings: 'الإعدادات',
+            view_logs: 'سجل النشاطات',
+            manage_users: 'المستخدمين'
+        };
+
+        let currentUsername = 'admin';
         let currentRole = 'Admin';
-        let currentBase64Image = '';
+        let currentPermissions = [...ALL_PERMISSIONS];
+        let currentProductImages = [];
         let currentBase64Logo = '';
 
         let productsList = [];
         let ordersList = [];
         let usersList = [];
+        let logsList = [];
         let storeSettings = {
             store_name: 'M.Y-STORE',
             store_phone: '',
@@ -415,7 +550,71 @@
             store_logo: ''
         };
 
-        // التأكد من وجود حساب Admin افتراضي عند التشغيل الأول
+        // دالة تسجيل كل حركة بالتفصيل في سجل النشاطات (store_logs)
+        async function recordActivity(category, actionType, details) {
+            try {
+                const now = new Date();
+                const formattedTime = now.toLocaleString('ar-EG', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                await addDoc(collection(db, "store_logs"), {
+                    user: currentUsername,
+                    role: currentRole,
+                    category,
+                    actionType,
+                    details,
+                    timestamp: Date.now(),
+                    formattedTime
+                });
+            } catch (err) {
+                console.error("Failed to record activity:", err);
+            }
+        }
+
+        function hasPermission(perm) {
+            return currentRole === 'Admin' || currentPermissions.includes(perm);
+        }
+
+        function getUserEffectivePermissions(user) {
+            if (!user) return [];
+            if (user.role === 'Admin') return [...ALL_PERMISSIONS];
+            if (Array.isArray(user.permissions) && user.permissions.length > 0) {
+                return user.permissions;
+            }
+            return ROLE_PRESETS[user.role] || ROLE_PRESETS.Viewer;
+        }
+
+        function compressImage(file, maxWidth = 650, quality = 0.7) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
         async function ensureDefaultAdmin() {
             try {
                 const usersSnap = await getDocs(collection(db, "store_users"));
@@ -423,18 +622,22 @@
                     await addDoc(collection(db, "store_users"), {
                         username: 'admin',
                         password: '123',
-                        role: 'Admin'
+                        role: 'Admin',
+                        permissions: [...ALL_PERMISSIONS]
                     });
                 }
             } catch (err) {
-                console.error("خطأ في الاتصال بقاعدة البيانات:", err);
+                console.error(err);
             }
         }
         ensureDefaultAdmin();
 
-        // التنقل بين التبويبات
+        // التنقل بين التبويبات المسموحة فقط
         document.querySelectorAll('#sidebar-nav .nav-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                const requiredPerm = btn.getAttribute('data-perm');
+                if (requiredPerm && !hasPermission(requiredPerm)) return;
+
                 const targetTab = btn.getAttribute('data-tab');
                 document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden-section'));
                 document.querySelectorAll('#sidebar-nav .nav-btn').forEach(b => b.classList.remove('bg-slate-800', 'text-white'));
@@ -443,7 +646,7 @@
             });
         });
 
-        // تسجيل الدخول عبر Firestore
+        // تسجيل الدخول وتطبيق صلاحيات المستخدم
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('login-submit-btn');
@@ -464,30 +667,65 @@
                 });
 
                 if (foundUser || (u === 'admin' && (p === 'admin123' || p === '123'))) {
+                    currentUsername = u;
                     currentRole = foundUser ? foundUser.role : 'Admin';
+                    currentPermissions = foundUser ? getUserEffectivePermissions(foundUser) : [...ALL_PERMISSIONS];
+
                     document.getElementById('login-section').classList.add('hidden-section');
                     document.getElementById('admin-main').classList.remove('hidden-section');
                     document.getElementById('current-user-display').innerText = u;
                     document.getElementById('current-role-badge').innerText = currentRole;
                     
-                    applyRolePermissions();
+                    applyUserPermissionsUI();
                     startRealtimeListeners();
+                    await recordActivity('الدخول', 'تسجيل دخول', `قام المستخدم "${u}" (${currentRole}) بتسجيل الدخول للوحة التحكم`);
                 } else {
                     alert('اسم المستخدم أو كلمة السر غير صحيحة!');
                 }
             } catch (error) {
-                console.error(error);
-                alert('حدث خطأ أثناء الاتصال بقاعدة البيانات. تأكد من تفعيل Firestore Rules.');
+                alert('حدث خطأ أثناء تسجيل الدخول. تأكد من الاتصال بالإنترنت.');
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'تسجيل الدخول';
             }
         });
 
-        document.getElementById('logout-btn').addEventListener('click', () => {
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await recordActivity('الدخول', 'تسجيل خروج', `قام المستخدم "${currentUsername}" بتسجيل الخروج`);
             document.getElementById('admin-main').classList.add('hidden-section');
             document.getElementById('login-section').classList.remove('hidden-section');
         });
+
+        // إظهار الأقسام والأزرار المسموحة فقط وفتح أول قسم متاح تلقائياً
+        function applyUserPermissionsUI() {
+            document.querySelectorAll('.perm-item').forEach(el => {
+                const perm = el.getAttribute('data-perm');
+                if (!hasPermission(perm)) {
+                    el.classList.add('hidden-section');
+                } else if (!el.classList.contains('tab-content')) {
+                    el.classList.remove('hidden-section');
+                }
+            });
+
+            // إخفاء زر مسح السجل عن غير الأدمن
+            const clearLogsBtn = document.getElementById('btn-clear-logs');
+            if (clearLogsBtn) {
+                clearLogsBtn.style.display = currentRole === 'Admin' ? 'inline-flex' : 'none';
+            }
+
+            const visibleNavBtns = Array.from(document.querySelectorAll('#sidebar-nav .nav-btn'))
+                .filter(b => !b.classList.contains('hidden-section'));
+
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden-section'));
+            document.querySelectorAll('#sidebar-nav .nav-btn').forEach(b => b.classList.remove('bg-slate-800', 'text-white'));
+
+            if (visibleNavBtns.length > 0) {
+                document.getElementById('no-permissions-msg').classList.add('hidden-section');
+                visibleNavBtns[0].click();
+            } else {
+                document.getElementById('no-permissions-msg').classList.remove('hidden-section');
+            }
+        }
 
         // إغلاق النوافذ المنبثقة
         document.querySelectorAll('.btn-close-modal').forEach(btn => {
@@ -503,78 +741,174 @@
             });
         });
 
+        function setCheckboxesFromPermissions(perms, disabled = false) {
+            document.querySelectorAll('.user-perm-cb').forEach(cb => {
+                cb.checked = perms.includes(cb.value);
+                cb.disabled = disabled;
+            });
+        }
+
+        document.getElementById('user-role').addEventListener('change', (e) => {
+            const selectedRole = e.target.value;
+            const preset = ROLE_PRESETS[selectedRole] || [];
+            setCheckboxesFromPermissions(preset, selectedRole === 'Admin');
+        });
+
+        function renderProductImagesPreview() {
+            const grid = document.getElementById('images-preview-grid');
+            const clearBtn = document.getElementById('btn-clear-images');
+            grid.innerHTML = '';
+
+            if (currentProductImages.length === 0) {
+                grid.classList.add('hidden-section');
+                clearBtn.classList.add('hidden-section');
+                return;
+            }
+
+            grid.classList.remove('hidden-section');
+            clearBtn.classList.remove('hidden-section');
+
+            currentProductImages.forEach((imgSrc, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = `relative group rounded-xl overflow-hidden border-2 ${idx === 0 ? 'border-indigo-500' : 'border-slate-700'} bg-slate-950 aspect-square`;
+                wrapper.innerHTML = `
+                    <img src="${imgSrc}" class="w-full h-full object-cover">
+                    ${idx === 0 ? `<span class="absolute bottom-1 right-1 bg-indigo-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">رئيسية</span>` : `
+                        <button type="button" data-idx="${idx}" title="تعيين كصورة رئيسية" class="btn-make-main absolute bottom-1 right-1 bg-slate-900/80 hover:bg-indigo-600 text-white text-[9px] px-1.5 py-0.5 rounded transition">تعيين رئيسية</button>
+                    `}
+                    <button type="button" data-idx="${idx}" title="حذف الصورة" class="btn-remove-preview-img absolute top-1 left-1 bg-rose-600/90 hover:bg-rose-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                grid.appendChild(wrapper);
+            });
+
+            grid.querySelectorAll('.btn-remove-preview-img').forEach(b => {
+                b.addEventListener('click', () => {
+                    const idx = parseInt(b.getAttribute('data-idx'));
+                    currentProductImages.splice(idx, 1);
+                    renderProductImagesPreview();
+                });
+            });
+
+            grid.querySelectorAll('.btn-make-main').forEach(b => {
+                b.addEventListener('click', () => {
+                    const idx = parseInt(b.getAttribute('data-idx'));
+                    const [selected] = currentProductImages.splice(idx, 1);
+                    currentProductImages.unshift(selected);
+                    renderProductImagesPreview();
+                });
+            });
+        }
+
+        document.getElementById('btn-clear-images').addEventListener('click', () => {
+            currentProductImages = [];
+            document.getElementById('product-image-file').value = '';
+            renderProductImagesPreview();
+        });
+
         // فتح نافذة إضافة منتج
         document.getElementById('btn-open-add-product').addEventListener('click', () => {
+            if (!hasPermission('manage_products')) return;
             document.getElementById('product-id').value = '';
             document.getElementById('product-name').value = '';
             document.getElementById('product-description').value = '';
             document.getElementById('product-price').value = '';
             document.getElementById('product-category').value = '';
             document.getElementById('product-image-file').value = '';
-            document.getElementById('image-preview-container').classList.add('hidden-section');
             document.getElementById('productModalTitle').innerText = 'إضافة منتج جديد';
-            currentBase64Image = '';
+            currentProductImages = [];
+            renderProductImagesPreview();
             document.getElementById('productModal').classList.remove('hidden-section');
         });
 
-        // فتح نافذة إضافة مستخدم
+        // فتح نافذة إضافة مستخدم جديد
         document.getElementById('btn-open-add-user').addEventListener('click', () => {
+            if (!hasPermission('manage_users')) return;
+            document.getElementById('user-doc-id').value = '';
             document.getElementById('user-username').value = '';
+            document.getElementById('user-username').disabled = false;
             document.getElementById('user-password').value = '';
+            document.getElementById('user-password').required = true;
+            document.getElementById('user-password').placeholder = 'أدخل كلمة السر';
+            document.getElementById('user-password-label').innerText = 'كلمة السر';
+            document.getElementById('user-role').value = 'Editor';
+            document.getElementById('user-role').disabled = false;
+            setCheckboxesFromPermissions(ROLE_PRESETS.Editor, false);
+            document.getElementById('userModalTitle').innerText = 'إضافة مستخدم جديد';
             document.getElementById('userModal').classList.remove('hidden-section');
         });
 
-        // تحويل صورة المنتج إلى Base64
-        document.getElementById('product-image-file').addEventListener('change', function(e) {
+        // اختيار وضغط عدة صور للمنتج
+        document.getElementById('product-image-file').addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files || []);
+            if (files.length === 0) return;
+
+            const remainingSlots = 6 - currentProductImages.length;
+            if (remainingSlots <= 0) {
+                alert('الحد الأقصى 6 صور للمنتج الواحد.');
+                return;
+            }
+
+            const filesToProcess = files.slice(0, remainingSlots);
+            for (const file of filesToProcess) {
+                const compressed = await compressImage(file, 650, 0.7);
+                currentProductImages.push(compressed);
+            }
+
+            e.target.value = '';
+            renderProductImagesPreview();
+        });
+
+        // شعار المتجر
+        document.getElementById('setting-store-logo-file').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    currentBase64Image = evt.target.result;
-                    document.getElementById('image-preview').src = currentBase64Image;
-                    document.getElementById('image-preview-container').classList.remove('hidden-section');
-                };
-                reader.readAsDataURL(file);
+                currentBase64Logo = await compressImage(file, 400, 0.8);
+                document.getElementById('logo-preview').src = currentBase64Logo;
+                document.getElementById('logo-preview-container').classList.remove('hidden-section');
             }
         });
 
-        // تحويل شعار المتجر إلى Base64
-        document.getElementById('setting-store-logo-file').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    currentBase64Logo = evt.target.result;
-                    document.getElementById('logo-preview').src = currentBase64Logo;
-                    document.getElementById('logo-preview-container').classList.remove('hidden-section');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // حفظ أو تعديل منتج في Firestore
+        // حفظ أو تعديل منتج وتسجيل الحركة بالتفصيل
         document.getElementById('product-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!hasPermission('manage_products')) {
+                alert('ليس لديك صلاحية تعديل المنتجات.');
+                return;
+            }
+
             const btn = document.getElementById('save-product-btn');
             btn.disabled = true;
             btn.innerText = 'جاري الحفظ...';
 
             const docId = document.getElementById('product-id').value;
-            const name = document.getElementById('product-name').value;
-            const description = document.getElementById('product-description').value;
+            const name = document.getElementById('product-name').value.trim();
+            const description = document.getElementById('product-description').value.trim();
             const price = parseFloat(document.getElementById('product-price').value);
-            const category = document.getElementById('product-category').value;
+            const category = document.getElementById('product-category').value.trim();
+
+            const finalImages = currentProductImages.length > 0
+                ? currentProductImages
+                : ['https://via.placeholder.com/300'];
 
             try {
                 if (docId) {
-                    const existingProd = productsList.find(p => p.docId === docId);
+                    const oldProd = productsList.find(p => p.docId === docId);
                     await updateDoc(doc(db, "store_products", docId), {
                         name,
                         description,
                         price,
                         category,
-                        image: currentBase64Image || (existingProd ? existingProd.image : 'https://via.placeholder.com/150')
+                        image: finalImages[0],
+                        images: finalImages
                     });
+
+                    let diffText = `تعديل المنتج "${name}" (السعر: ${price} ج.م | التصنيف: ${category} | عدد الصور: ${finalImages.length})`;
+                    if (oldProd && oldProd.price !== price) {
+                        diffText += ` — تم تغيير السعر من ${oldProd.price} ج.م إلى ${price} ج.م`;
+                    }
+                    await recordActivity('المنتجات', 'تعديل', diffText);
                 } else {
                     await addDoc(collection(db, "store_products"), {
                         id: Date.now(),
@@ -582,46 +916,106 @@
                         description,
                         price,
                         category,
-                        image: currentBase64Image || 'https://via.placeholder.com/150',
+                        image: finalImages[0],
+                        images: finalImages,
                         createdAt: new Date().toISOString()
                     });
+                    await recordActivity('المنتجات', 'إضافة', `إضافة منتج جديد "${name}" بسعر ${price} ج.م في قسم "${category}" (${finalImages.length} صور)`);
                 }
                 document.getElementById('productModal').classList.add('hidden-section');
             } catch (err) {
-                console.error(err);
-                alert('فشل حفظ المنتج! تأكد من أن حجم الصورة صغير (أقل من 800KB).');
+                alert('فشل حفظ المنتج! حاول تقليل عدد الصور أو اختيار صور أصغر حجماً.');
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'حفظ المنتج';
             }
         });
 
-        // إضافة مستخدم جديد في Firestore
+        // حفظ أو تعديل مستخدم وتسجيل الحركة بالتفصيل
         document.getElementById('user-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('save-user-btn');
-            btn.disabled = true;
-            btn.innerText = 'جاري الحفظ...';
+            if (!hasPermission('manage_users')) {
+                alert('غير مصرح لك بتعديل المستخدمين!');
+                return;
+            }
 
+            const docId = document.getElementById('user-doc-id').value;
             const username = document.getElementById('user-username').value.trim();
             const password = document.getElementById('user-password').value.trim();
             const role = document.getElementById('user-role').value;
 
+            const selectedPermissions = role === 'Admin'
+                ? [...ALL_PERMISSIONS]
+                : Array.from(document.querySelectorAll('.user-perm-cb:checked')).map(cb => cb.value);
+
+            if (selectedPermissions.length === 0) {
+                alert('يرجى اختيار صلاحية واحدة على الأقل لهذا المستخدم!');
+                return;
+            }
+
+            const btn = document.getElementById('save-user-btn');
+            btn.disabled = true;
+            btn.innerText = 'جاري الحفظ...';
+
+            const permsNames = selectedPermissions.map(p => PERM_LABELS[p] || p).join('، ');
+
             try {
-                await addDoc(collection(db, "store_users"), { username, password, role });
+                if (docId) {
+                    const existingUser = usersList.find(u => u.docId === docId);
+                    const isMainAdmin = existingUser && existingUser.username === 'admin';
+                    const finalName = isMainAdmin ? 'admin' : username;
+                    const finalRole = isMainAdmin ? 'Admin' : role;
+
+                    const updatedData = {
+                        username: finalName,
+                        role: finalRole,
+                        permissions: isMainAdmin ? [...ALL_PERMISSIONS] : selectedPermissions
+                    };
+                    if (password) {
+                        updatedData.password = password;
+                    }
+                    await updateDoc(doc(db, "store_users", docId), updatedData);
+
+                    await recordActivity(
+                        'المستخدمين',
+                        'تعديل',
+                        `تعديل بيانات المستخدم "${finalName}" (الدور: ${finalRole}${password ? ' + تم تغيير كلمة السر' : ''}) — الصلاحيات: [${permsNames}]`
+                    );
+                } else {
+                    const isDuplicate = usersList.some(u => u.username.toLowerCase() === username.toLowerCase());
+                    if (isDuplicate) {
+                        alert('اسم المستخدم موجود بالفعل، اختر اسماً آخر.');
+                        btn.disabled = false;
+                        btn.innerText = 'حفظ المستخدم';
+                        return;
+                    }
+                    await addDoc(collection(db, "store_users"), {
+                        username,
+                        password,
+                        role,
+                        permissions: selectedPermissions
+                    });
+
+                    await recordActivity(
+                        'المستخدمين',
+                        'إضافة',
+                        `إضافة مستخدم جديد "${username}" بدور (${role}) — الصلاحيات الممنوحة: [${permsNames}]`
+                    );
+                }
                 document.getElementById('userModal').classList.add('hidden-section');
             } catch (err) {
-                console.error(err);
-                alert('حدث خطأ أثناء إضافة المستخدم.');
+                alert('حدث خطأ أثناء حفظ بيانات المستخدم.');
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'حفظ المستخدم';
             }
         });
 
-        // حفظ إعدادات المتجر في Firestore
+        // حفظ إعدادات المتجر وتسجيل الحركة
         document.getElementById('settings-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!hasPermission('manage_settings')) return;
+
             const btn = document.getElementById('save-settings-btn');
             btn.disabled = true;
             btn.innerText = 'جاري الحفظ...';
@@ -636,9 +1030,13 @@
 
             try {
                 await setDoc(doc(db, "settings", "store_config"), dataToSave, { merge: true });
-                alert('تم حفظ الإعدادات سحابياً بنجاح!');
+                await recordActivity(
+                    'الإعدادات',
+                    'تعديل',
+                    `تحديث إعدادات المتجر (الاسم: ${dataToSave.store_name || '-'} | الهاتف: ${dataToSave.store_phone || '-'} | InstaPay: ${dataToSave.store_instapay || '-'} | واتساب: ${dataToSave.store_whatsapp || '-'})`
+                );
+                alert('تم حفظ الإعدادات بنجاح!');
             } catch (err) {
-                console.error(err);
                 alert('حدث خطأ أثناء حفظ الإعدادات.');
             } finally {
                 btn.disabled = false;
@@ -646,49 +1044,47 @@
             }
         });
 
-        // تطبيق الصلاحيات
-        function applyRolePermissions() {
-            const adminOnly = document.querySelectorAll('.role-admin-only');
-            const writeOnly = document.querySelectorAll('.role-write-only');
+        // فلاتر البحث في سجل النشاطات
+        document.getElementById('log-search-input').addEventListener('input', renderLogs);
+        document.getElementById('log-category-filter').addEventListener('change', renderLogs);
 
-            if (currentRole === 'Viewer') {
-                adminOnly.forEach(el => el.style.display = 'none');
-                writeOnly.forEach(el => el.style.display = 'none');
-            } else if (currentRole === 'Editor') {
-                adminOnly.forEach(el => el.style.display = 'none');
-                writeOnly.forEach(el => el.style.display = 'inline-flex');
-            } else {
-                adminOnly.forEach(el => el.style.display = '');
-                writeOnly.forEach(el => el.style.display = 'inline-flex');
+        document.getElementById('btn-clear-logs').addEventListener('click', async () => {
+            if (currentRole !== 'Admin') return;
+            if (confirm('هل أنت متأكد من مسح جميع سجلات النشاطات السابقة؟')) {
+                for (const item of logsList) {
+                    await deleteDoc(doc(db, "store_logs", item.docId));
+                }
+                await recordActivity('الإعدادات', 'حذف', 'قام المدير بمسح سجل النشاطات القديم');
             }
-        }
+        });
 
-        // الاستماع الفوري لجميع مجموعات Firestore
+        // الاستماع الفوري لجميع المجموعات
         function startRealtimeListeners() {
-            // 1. المنتجات
             onSnapshot(collection(db, "store_products"), (snapshot) => {
                 productsList = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
                 renderProducts();
                 updateDashboardStats();
             });
 
-            // 2. الطلبات
             onSnapshot(collection(db, "store_orders"), (snapshot) => {
                 ordersList = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
-                // ترتيب الطلبات من الأحدث للأقدم
                 ordersList.sort((a, b) => (b.id || 0) - (a.id || 0));
                 renderOrders();
                 updateDashboardStats();
             });
 
-            // 3. المستخدمين
             onSnapshot(collection(db, "store_users"), (snapshot) => {
                 usersList = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
                 renderUsers();
                 updateDashboardStats();
             });
 
-            // 4. الإعدادات
+            onSnapshot(collection(db, "store_logs"), (snapshot) => {
+                logsList = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+                logsList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                renderLogs();
+            });
+
             onSnapshot(doc(db, "settings", "store_config"), (docSnap) => {
                 if (docSnap.exists()) {
                     storeSettings = docSnap.data();
@@ -697,63 +1093,134 @@
             });
         }
 
-        function renderProducts() {
-            const tbody = document.getElementById('products-table-body');
+        function renderLogs() {
+            const tbody = document.getElementById('logs-table-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
-            productsList.forEach(p => {
+            const searchTerm = (document.getElementById('log-search-input')?.value || '').trim().toLowerCase();
+            const catFilter = document.getElementById('log-category-filter')?.value || 'all';
+
+            const filteredLogs = logsList.filter(log => {
+                const matchesCat = catFilter === 'all' || log.category === catFilter;
+                const matchesText = !searchTerm ||
+                    (log.user || '').toLowerCase().includes(searchTerm) ||
+                    (log.details || '').toLowerCase().includes(searchTerm) ||
+                    (log.actionType || '').toLowerCase().includes(searchTerm);
+                return matchesCat && matchesText;
+            });
+
+            if (filteredLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 text-xs">لا توجد سجلات مطابقة للبحث حالياً</td></tr>`;
+                return;
+            }
+
+            filteredLogs.forEach(log => {
+                let actionBadge = 'bg-slate-800 text-slate-300';
+                if (log.actionType === 'إضافة') actionBadge = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                if (log.actionType === 'تعديل') actionBadge = 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+                if (log.actionType === 'حذف') actionBadge = 'bg-rose-500/20 text-rose-400 border border-rose-500/30';
+                if (log.actionType === 'تسجيل دخول' || log.actionType === 'تسجيل خروج') actionBadge = 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30';
+
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/40 transition';
                 tr.innerHTML = `
-                    <td class="p-4"><img src="${p.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 object-cover rounded-xl border border-slate-700"></td>
+                    <td class="p-4 whitespace-nowrap">
+                        <div class="font-bold text-white">${log.user || '-'}</div>
+                        <div class="text-[10px] text-slate-400">${log.role || ''}</div>
+                    </td>
+                    <td class="p-4 whitespace-nowrap">
+                        <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg text-xs font-semibold">${log.category || '-'}</span>
+                    </td>
+                    <td class="p-4 whitespace-nowrap">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${actionBadge}">${log.actionType || '-'}</span>
+                    </td>
+                    <td class="p-4 text-xs text-slate-200 leading-relaxed min-w-[260px]">${log.details || '-'}</td>
+                    <td class="p-4 font-mono text-[11px] text-slate-400 whitespace-nowrap" dir="ltr">${log.formattedTime || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('products-table-body');
+            tbody.innerHTML = '';
+            const canManageProducts = hasPermission('manage_products');
+
+            productsList.forEach(p => {
+                const imgs = (Array.isArray(p.images) && p.images.length > 0) ? p.images : [p.image || 'https://via.placeholder.com/50'];
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition';
+                tr.innerHTML = `
+                    <td class="p-4">
+                        <div class="relative inline-block">
+                            <img src="${imgs[0]}" class="w-12 h-12 object-cover rounded-xl border border-slate-700">
+                            ${imgs.length > 1 ? `<span class="absolute -top-1.5 -left-1.5 bg-indigo-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow">+${imgs.length - 1}</span>` : ''}
+                        </div>
+                    </td>
                     <td class="p-4 font-bold text-white">${p.name}</td>
                     <td class="p-4 text-xs text-slate-400 max-w-xs truncate">${p.description || 'لا يوجد وصف'}</td>
                     <td class="p-4 font-bold text-indigo-400">${p.price} ج.م</td>
                     <td class="p-4"><span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg text-xs font-semibold">${p.category}</span></td>
                     <td class="p-4">
-                        ${currentRole !== 'Viewer' ? `
-                            <button type="button" class="btn-edit-prod text-amber-400 hover:text-amber-300 ml-3" data-docid="${p.docId}"><i class="fas fa-edit"></i></button>
-                            <button type="button" class="btn-del-prod text-rose-400 hover:text-rose-300" data-docid="${p.docId}"><i class="fas fa-trash"></i></button>
+                        ${canManageProducts ? `
+                            <button type="button" class="btn-edit-prod text-amber-400 hover:text-amber-300 ml-3" data-docid="${p.docId}" title="تعديل"><i class="fas fa-edit"></i></button>
+                            <button type="button" class="btn-del-prod text-rose-400 hover:text-rose-300" data-docid="${p.docId}" title="حذف"><i class="fas fa-trash"></i></button>
                         ` : '<span class="text-slate-500 text-xs">عرض فقط</span>'}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            tbody.querySelectorAll('.btn-edit-prod').forEach(b => {
-                b.addEventListener('click', () => {
-                    const docId = b.getAttribute('data-docid');
-                    const product = productsList.find(item => item.docId === docId);
-                    if (product) {
-                        document.getElementById('product-id').value = product.docId;
-                        document.getElementById('product-name').value = product.name;
-                        document.getElementById('product-description').value = product.description || '';
-                        document.getElementById('product-price').value = product.price;
-                        document.getElementById('product-category').value = product.category;
-                        currentBase64Image = product.image || '';
-                        if (currentBase64Image) {
-                            document.getElementById('image-preview').src = currentBase64Image;
-                            document.getElementById('image-preview-container').classList.remove('hidden-section');
-                        }
-                        document.getElementById('productModalTitle').innerText = 'تعديل المنتج';
-                        document.getElementById('productModal').classList.remove('hidden-section');
-                    }
-                });
-            });
+            if (canManageProducts) {
+                tbody.querySelectorAll('.btn-edit-prod').forEach(b => {
+                    b.addEventListener('click', () => {
+                        const docId = b.getAttribute('data-docid');
+                        const product = productsList.find(item => item.docId === docId);
+                        if (product) {
+                            document.getElementById('product-id').value = product.docId;
+                            document.getElementById('product-name').value = product.name;
+                            document.getElementById('product-description').value = product.description || '';
+                            document.getElementById('product-price').value = product.price;
+                            document.getElementById('product-category').value = product.category;
+                            
+                            if (Array.isArray(product.images) && product.images.length > 0) {
+                                currentProductImages = [...product.images];
+                            } else if (product.image) {
+                                currentProductImages = [product.image];
+                            } else {
+                                currentProductImages = [];
+                            }
+                            renderProductImagesPreview();
 
-            tbody.querySelectorAll('.btn-del-prod').forEach(b => {
-                b.addEventListener('click', async () => {
-                    const docId = b.getAttribute('data-docid');
-                    if (confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) {
-                        await deleteDoc(doc(db, "store_products", docId));
-                    }
+                            document.getElementById('productModalTitle').innerText = 'تعديل المنتج';
+                            document.getElementById('productModal').classList.remove('hidden-section');
+                        }
+                    });
                 });
-            });
+
+                tbody.querySelectorAll('.btn-del-prod').forEach(b => {
+                    b.addEventListener('click', async () => {
+                        const docId = b.getAttribute('data-docid');
+                        const targetProd = productsList.find(item => item.docId === docId);
+                        if (confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) {
+                            await deleteDoc(doc(db, "store_products", docId));
+                            await recordActivity(
+                                'المنتجات',
+                                'حذف',
+                                `حذف المنتج "${targetProd ? targetProd.name : docId}" (كان سعره: ${targetProd ? targetProd.price : '-'} ج.م)`
+                            );
+                        }
+                    });
+                });
+            }
         }
 
         function renderOrders() {
             const tbody = document.getElementById('orders-table-body');
             tbody.innerHTML = '';
+            const canUpdateOrders = hasPermission('update_orders');
+            const canDeleteOrders = hasPermission('delete_orders');
 
             ordersList.forEach(o => {
                 const displayId = o.id || o.docId.slice(0, 6);
@@ -785,35 +1252,47 @@
                     </td>
                     <td class="p-4 text-center whitespace-nowrap">
                         <div class="inline-flex items-center gap-1.5 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
-                            <select data-docid="${o.docId}" class="order-status-select bg-slate-900 border border-slate-700 rounded-lg text-xs px-2 py-1 text-white focus:outline-none">
-                                <option value="جديد" ${o.status === 'جديد' ? 'selected' : ''}>جديد</option>
-                                <option value="قيد المعالجة" ${o.status === 'قيد المعالجة' ? 'selected' : ''}>قيد المعالجة</option>
-                                <option value="جاري الشحن" ${o.status === 'جاري الشحن' ? 'selected' : ''}>جاري الشحن 🚚</option>
-                                <option value="تم الاستلام" ${o.status === 'تم الاستلام' ? 'selected' : ''}>تم الاستلام ✅</option>
-                                <option value="ملغى" ${o.status === 'ملغى' ? 'selected' : ''}>ملغى ❌</option>
-                            </select>
+                            ${canUpdateOrders ? `
+                                <select data-docid="${o.docId}" class="order-status-select bg-slate-900 border border-slate-700 rounded-lg text-xs px-2 py-1 text-white focus:outline-none">
+                                    <option value="جديد" ${o.status === 'جديد' ? 'selected' : ''}>جديد</option>
+                                    <option value="قيد المعالجة" ${o.status === 'قيد المعالجة' ? 'selected' : ''}>قيد المعالجة</option>
+                                    <option value="جاري الشحن" ${o.status === 'جاري الشحن' ? 'selected' : ''}>جاري الشحن 🚚</option>
+                                    <option value="تم الاستلام" ${o.status === 'تم الاستلام' ? 'selected' : ''}>تم الاستلام ✅</option>
+                                    <option value="ملغى" ${o.status === 'ملغى' ? 'selected' : ''}>ملغى ❌</option>
+                                </select>
+                            ` : ''}
                             <button type="button" data-docid="${o.docId}" title="عرض تفاصيل الأوردر" class="btn-view-details bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white p-1.5 rounded-lg transition"><i class="fas fa-eye"></i></button>
                             ${o.receiptImage ? `<button type="button" data-docid="${o.docId}" title="معاينة وصل التحويل" class="btn-view-receipt bg-purple-600/20 hover:bg-purple-600 text-purple-400 hover:text-white p-1.5 rounded-lg transition"><i class="fas fa-file-invoice"></i></button>` : ''}
                             <button type="button" data-docid="${o.docId}" title="واتساب العميل" class="btn-wa-order bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white p-1.5 rounded-lg transition"><i class="fab fa-whatsapp"></i></button>
                             <button type="button" data-docid="${o.docId}" title="طباعة الفاتورة" class="btn-print-order bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white p-1.5 rounded-lg transition"><i class="fas fa-print"></i></button>
-                            ${currentRole === 'Admin' ? `<button type="button" data-docid="${o.docId}" title="حذف الطلب" class="btn-del-order bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white p-1.5 rounded-lg transition"><i class="fas fa-trash"></i></button>` : ''}
+                            ${canDeleteOrders ? `<button type="button" data-docid="${o.docId}" title="حذف الطلب" class="btn-del-order bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white p-1.5 rounded-lg transition"><i class="fas fa-trash"></i></button>` : ''}
                         </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // تحديث حالة الطلب في Firestore
-            tbody.querySelectorAll('.order-status-select').forEach(sel => {
-                sel.addEventListener('change', async (e) => {
-                    const docId = sel.getAttribute('data-docid');
-                    await updateDoc(doc(db, "store_orders", docId), {
-                        status: e.target.value
+            if (canUpdateOrders) {
+                tbody.querySelectorAll('.order-status-select').forEach(sel => {
+                    sel.addEventListener('change', async (e) => {
+                        const docId = sel.getAttribute('data-docid');
+                        const targetOrd = ordersList.find(item => item.docId === docId);
+                        const oldStatus = targetOrd ? (targetOrd.status || 'جديد') : '-';
+                        const newStatus = e.target.value;
+
+                        await updateDoc(doc(db, "store_orders", docId), {
+                            status: newStatus
+                        });
+
+                        await recordActivity(
+                            'الطلبات',
+                            'تعديل',
+                            `تغيير حالة الطلب #${targetOrd ? (targetOrd.id || docId.slice(0, 6)) : docId} للعميل "${targetOrd?.customer?.name || '-'}" من "${oldStatus}" إلى "${newStatus}"`
+                        );
                     });
                 });
-            });
+            }
 
-            // عرض تفاصيل الطلب
             tbody.querySelectorAll('.btn-view-details').forEach(b => {
                 b.addEventListener('click', () => {
                     const docId = b.getAttribute('data-docid');
@@ -845,7 +1324,6 @@
                 });
             });
 
-            // معاينة وصل التحويل
             tbody.querySelectorAll('.btn-view-receipt').forEach(b => {
                 b.addEventListener('click', () => {
                     const docId = b.getAttribute('data-docid');
@@ -863,7 +1341,6 @@
                 });
             });
 
-            // مراسلة العميل واتساب
             tbody.querySelectorAll('.btn-wa-order').forEach(b => {
                 b.addEventListener('click', () => {
                     const docId = b.getAttribute('data-docid');
@@ -876,7 +1353,6 @@
                 });
             });
 
-            // طباعة الفاتورة
             tbody.querySelectorAll('.btn-print-order').forEach(b => {
                 b.addEventListener('click', () => {
                     const docId = b.getAttribute('data-docid');
@@ -925,39 +1401,102 @@
                 });
             });
 
-            // حذف الطلب
-            tbody.querySelectorAll('.btn-del-order').forEach(b => {
-                b.addEventListener('click', async () => {
-                    const docId = b.getAttribute('data-docid');
-                    if (confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟')) {
-                        await deleteDoc(doc(db, "store_orders", docId));
-                    }
+            if (canDeleteOrders) {
+                tbody.querySelectorAll('.btn-del-order').forEach(b => {
+                    b.addEventListener('click', async () => {
+                        const docId = b.getAttribute('data-docid');
+                        const targetOrd = ordersList.find(item => item.docId === docId);
+                        if (confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟')) {
+                            await deleteDoc(doc(db, "store_orders", docId));
+                            await recordActivity(
+                                'الطلبات',
+                                'حذف',
+                                `حذف الطلب #${targetOrd ? (targetOrd.id || docId.slice(0, 6)) : docId} الخاص بالعميل "${targetOrd?.customer?.name || '-'}" (إجمالي: ${targetOrd?.total || 0} ج.م)`
+                            );
+                        }
+                    });
                 });
-            });
+            }
         }
 
         function renderUsers() {
             const tbody = document.getElementById('users-table-body');
             tbody.innerHTML = '';
 
+            const adminsCount = usersList.filter(user => user.role === 'Admin').length;
+
             usersList.forEach((u) => {
+                const isLastAdmin = u.role === 'Admin' && adminsCount <= 1;
+                const effPerms = getUserEffectivePermissions(u);
+
+                let roleBadge = 'bg-slate-800 text-slate-300';
+                if (u.role === 'Admin') roleBadge = 'bg-rose-500/20 text-rose-400 border border-rose-500/30';
+                if (u.role === 'Editor') roleBadge = 'bg-blue-500/20 text-blue-400 border border-blue-500/30';
+
+                const permsBadges = u.role === 'Admin'
+                    ? '<span class="text-[11px] bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-md font-semibold">جميع الصلاحيات</span>'
+                    : effPerms.map(p => `<span class="text-[10px] bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-md">${PERM_LABELS[p] || p}</span>`).join(' ');
+
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/40 transition';
                 tr.innerHTML = `
-                    <td class="p-4 font-bold text-white">${u.username}</td>
-                    <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-semibold ${u.role === 'Admin' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-slate-800 text-slate-300'}">${u.role}</span></td>
-                    <td class="p-4">
-                        ${u.username !== 'admin' ? `<button type="button" data-docid="${u.docId}" class="btn-del-user text-rose-400 hover:text-rose-300"><i class="fas fa-trash"></i></button>` : '<span class="text-slate-500 text-xs">الرئيسي</span>'}
+                    <td class="p-4 font-bold text-white whitespace-nowrap">${u.username}</td>
+                    <td class="p-4 whitespace-nowrap"><span class="px-3 py-1 rounded-full text-xs font-semibold ${roleBadge}">${u.role}</span></td>
+                    <td class="p-4"><div class="flex flex-wrap gap-1 max-w-md">${permsBadges}</div></td>
+                    <td class="p-4 whitespace-nowrap">
+                        <div class="inline-flex items-center gap-2">
+                            <button type="button" data-docid="${u.docId}" title="تعديل المستخدم والصلاحيات" class="btn-edit-user bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                <i class="fas fa-edit"></i> تعديل
+                            </button>
+                            ${!isLastAdmin ? `
+                                <button type="button" data-docid="${u.docId}" data-username="${u.username}" title="مسح المستخدم" class="btn-del-user bg-rose-500/15 hover:bg-rose-600 text-rose-400 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fas fa-trash"></i> مسح
+                                </button>
+                            ` : '<span class="text-slate-500 text-xs px-2">المدير الوحيد</span>'}
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
+            // زر تعديل المستخدم وصلاحياته
+            tbody.querySelectorAll('.btn-edit-user').forEach(b => {
+                b.addEventListener('click', () => {
+                    const docId = b.getAttribute('data-docid');
+                    const user = usersList.find(item => item.docId === docId);
+                    if (!user) return;
+
+                    const isMainAdmin = user.username === 'admin';
+                    const effPerms = getUserEffectivePermissions(user);
+
+                    document.getElementById('user-doc-id').value = user.docId;
+                    document.getElementById('user-username').value = user.username;
+                    document.getElementById('user-username').disabled = isMainAdmin;
+                    document.getElementById('user-password').value = '';
+                    document.getElementById('user-password').required = false;
+                    document.getElementById('user-password').placeholder = 'اتركه فارغاً للإبقاء على كلمة السر الحالية';
+                    document.getElementById('user-password-label').innerText = 'كلمة سر جديدة (اختياري)';
+                    document.getElementById('user-role').value = ROLE_PRESETS[user.role] ? user.role : 'Editor';
+                    document.getElementById('user-role').disabled = isMainAdmin;
+                    setCheckboxesFromPermissions(effPerms, isMainAdmin || user.role === 'Admin');
+
+                    document.getElementById('userModalTitle').innerText = `تعديل صلاحيات وبيانات: ${user.username}`;
+                    document.getElementById('userModal').classList.remove('hidden-section');
+                });
+            });
+
+            // زر مسح المستخدم من Firestore وتسجيل الحركة
             tbody.querySelectorAll('.btn-del-user').forEach(b => {
                 b.addEventListener('click', async () => {
                     const docId = b.getAttribute('data-docid');
-                    if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
-                        await deleteDoc(doc(db, "store_users", docId));
+                    const username = b.getAttribute('data-username');
+                    if (confirm(`هل أنت متأكد من مسح المستخدم "${username}" نهائياً؟`)) {
+                        try {
+                            await deleteDoc(doc(db, "store_users", docId));
+                            await recordActivity('المستخدمين', 'حذف', `مسح حساب المستخدم "${username}" نهائياً من النظام`);
+                        } catch (err) {
+                            alert('حدث خطأ أثناء مسح المستخدم، تأكد من الاتصال بالإنترنت.');
+                        }
                     }
                 });
             });
